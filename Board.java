@@ -1,12 +1,14 @@
 import edu.princeton.cs.algs4.Stack;
 
+import java.util.Arrays;
+
 public class Board {
 
-    private final int[][] board;
-    private int manhattan = 0;
-    private int hamming = 0;
-    private int blankX = 0;
-    private int blankY = 0;
+    private final char[][] board;
+    private int manhattan;
+    private int hamming;
+    private int blankX;
+    private int blankY;
     private final int len;
 
     /**
@@ -14,13 +16,13 @@ public class Board {
      * @param blocks the input for the intitial board
      */
     public Board(int[][] blocks) {
-        len = blocks.length;
-        this.board = new int[len][len];
+        this.len = blocks.length;
+        this.board = new char[len*len][];
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
-                this.board[i][j] = blocks[i][j];
-                if (this.board[i][j] != (len*i + j + 1)) this.hamming++;
-                int temp = this.board[i][j];
+                this.board[i*len + j] = Integer.toString(blocks[i][j]).toCharArray();
+                if (blocks[i][j] != (len*i + j + 1)) this.hamming++;
+                int temp = blocks[i][j];
                 if (temp != 0) {
                     this.manhattan += Math.abs((temp - 1) / len - i);
                     this.manhattan += Math.abs((temp - 1) % len - j);
@@ -38,7 +40,7 @@ public class Board {
      * @return the length of the board
      */
     public int dimension() {
-        return len;
+        return this.len;
     }
 
     /**
@@ -74,7 +76,13 @@ public class Board {
      */
     public Board twin() {
         int x1 = -1, y1 = -1, x2 = -1, y2;
-        int[][] newBoard = this.board;
+        int[][] newBoard = new int[len][len];
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j < len; j++) {
+                String s = new String(this.board[i*len + j]);
+                newBoard[i][j] = Integer.parseInt(s);
+            }
+        }
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
                 if (newBoard[i][j] != 0) {
@@ -91,7 +99,7 @@ public class Board {
                     }
                 }
             }
-            if (x2 > 0) break;
+            if (x2 >= 0) break;
         }
         return new Board(newBoard);
     }
@@ -107,11 +115,8 @@ public class Board {
         if (y.getClass() != this.getClass()) return false;
         Board that = (Board) y;
         if (this.dimension() != that.dimension()) return false;
-        int n = this.dimension();
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (this.board[i][j] != that.board[i][j]) return false;
-            }
+        for (int i = 0; i < len*len; i++) {
+            if (!Arrays.equals(this.board[i], that.board[i])) return false;
         }
         return true;
     }
@@ -128,7 +133,8 @@ public class Board {
             int[][] temp = new int[len][len];
             for (int i = 0; i < len; i++) {
                 for (int j = 0; j < len; j++) {
-                    temp[i][j] = this.board[i][j];
+                    String s = new String(this.board[i*len + j]);
+                    temp[i][j] = Integer.parseInt(s);
                 }
             }
             int neighbourVal = temp[this.blankX - 1][this.blankY];
@@ -142,7 +148,8 @@ public class Board {
             int[][] temp = new int[len][len];
             for (int i = 0; i < len; i++) {
                 for (int j = 0; j < len; j++) {
-                    temp[i][j] = this.board[i][j];
+                    String s = new String(this.board[i*len + j]);
+                    temp[i][j] = Integer.parseInt(s);
                 }
             }
             int neighbourVal = temp[this.blankX + 1][this.blankY];
@@ -156,7 +163,8 @@ public class Board {
             int[][] temp = new int[len][len];
             for (int i = 0; i < len; i++) {
                 for (int j = 0; j < len; j++) {
-                    temp[i][j] = this.board[i][j];
+                    String s = new String(this.board[i*len + j]);
+                    temp[i][j] = Integer.parseInt(s);
                 }
             }
             int neighbourVal = temp[this.blankX][this.blankY + 1];
@@ -170,7 +178,8 @@ public class Board {
             int[][] temp = new int[len][len];
             for (int i = 0; i < len; i++) {
                 for (int j = 0; j < len; j++) {
-                    temp[i][j] = this.board[i][j];
+                    String s = new String(this.board[i*len + j]);
+                    temp[i][j] = Integer.parseInt(s);
                 }
             }
             int neighbourVal = temp[this.blankX][this.blankY - 1];
@@ -190,7 +199,8 @@ public class Board {
         s.append(len + "\n");
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
-                s.append(String.format("%2d ", this.board[i][j]));
+                s.append(new String(this.board[i*len + j]));
+                s.append(" ");
             }
             s.append("\n");
         }
@@ -198,9 +208,12 @@ public class Board {
     }
 
     public static void main(String[] args) {
-        int[][] array = {{0, 3}, {2, 1}};
+        int[][] array = {{0, 1, 2, 3}, {5, 6, 7, 4}, {9, 10, 11, 8}, {13, 14, 15, 12}};
         Board b = new Board(array);
-        System.out.println(b.toString());
-        System.out.println(b.hamming() + " " + b.manhattan);
+        Iterable<Board> s = b.neighbors();
+        System.out.println(b.twin());
+        for (Board x : s) {
+            System.out.println(x.toString());
+        }
     }
 }
